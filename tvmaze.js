@@ -12834,7 +12834,8 @@ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"
 var $showsList = $("#showsList");
 var $episodesArea = $("#episodesArea");
 var $searchForm = $("#searchForm");
-var BASE_URL = "https://api.tvmaze.com/search/shows?q=";
+var $episodesBtn = $(".Show-getEpisodes");
+var BASE_URL = "https://api.tvmaze.com/search/shows";
 /** Given a search term, search for tv shows that match that query.
  *
  *  Returns (promise) array of show objects: [show, show, ...].
@@ -12846,7 +12847,7 @@ function getShowsByTerm(term) {
         var shows;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL).concat(term))];
+                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL, "?q=").concat(term))];
                 case 1:
                     shows = _a.sent();
                     console.log("shows in getshowsbyterm", shows);
@@ -12862,25 +12863,6 @@ function getShowsByTerm(term) {
     });
 }
 ;
-//   return [
-//     {
-//       id: 1767,
-//       name: "The Bletchley Circle",
-//       summary:
-//         `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-//            women with extraordinary skills that helped to end World War II.</p>
-//          <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-//            normal lives, modestly setting aside the part they played in
-//            producing crucial intelligence, which helped the Allies to victory
-//            and shortened the war. When Susan discovers a hidden code behind an
-//            unsolved murder she is met by skepticism from the police. She
-//            quickly realises she can only begin to crack the murders and bring
-//            the culprit to justice with her former friends.</p>`,
-//       image:
-//           "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-//     }
-//   ]
-// }
 /** Given list of shows, create markup for each and to DOM */
 function populateShows(shows) {
     $showsList.empty();
@@ -12929,9 +12911,35 @@ $searchForm.on("submit", function (evt) {
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
-// async function getEpisodesOfShow(id) { }
+function getEpisodesOfShow(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios_1.default.get("".concat(BASE_URL, "/").concat(id, "/episodes"))];
+                case 1:
+                    response = _a.sent();
+                    return [2 /*return*/, response.data.map(function (episode) {
+                            return {
+                                id: episode.id,
+                                name: episode.name,
+                                season: episode.season,
+                                number: episode.number
+                            };
+                        })];
+            }
+        });
+    });
+}
 /** Write a clear docstring for this function... */
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) {
+    $episodesArea.empty();
+    for (var _i = 0, episodes_1 = episodes; _i < episodes_1.length; _i++) {
+        var episode = episodes_1[_i];
+        var $episode = $("<li>".concat(episode.name, " (Season ").concat(episode.season, ", episode ").concat(episode.number, "</li>"));
+        $episodesArea.append($episode);
+    }
+}
 
 
 /***/ })

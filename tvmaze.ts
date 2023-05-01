@@ -4,14 +4,22 @@ import * as $ from 'jquery';
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+const $episodesBtn = $(".Show-getEpisodes");
 
-const BASE_URL = "https://api.tvmaze.com/search/shows?q="
+const BASE_URL = "https://api.tvmaze.com/search/shows";
 
 interface ShowInterface {
   id: number,
   name: string,
   summary: string,
   image: string
+}
+
+interface EpisodeInterface {
+  id: number,
+  name: string,
+  season: number,
+  number: number
 }
 
 
@@ -24,7 +32,7 @@ interface ShowInterface {
 
 async function getShowsByTerm(term: string) : Promise<ShowInterface[]> {
 
-  const shows = await axios.get(`${BASE_URL}${term}`)
+  const shows = await axios.get(`${BASE_URL}?q=${term}`)
 
   console.log("shows in getshowsbyterm", shows);
 
@@ -36,27 +44,6 @@ async function getShowsByTerm(term: string) : Promise<ShowInterface[]> {
       image: show.show.image?.medium}
   })
 };
-
-
-//   return [
-//     {
-//       id: 1767,
-//       name: "The Bletchley Circle",
-//       summary:
-//         `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-//            women with extraordinary skills that helped to end World War II.</p>
-//          <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-//            normal lives, modestly setting aside the part they played in
-//            producing crucial intelligence, which helped the Allies to victory
-//            and shortened the war. When Susan discovers a hidden code behind an
-//            unsolved murder she is met by skepticism from the police. She
-//            quickly realises she can only begin to crack the murders and bring
-//            the culprit to justice with her former friends.</p>`,
-//       image:
-//           "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-//     }
-//   ]
-// }
 
 
 /** Given list of shows, create markup for each and to DOM */
@@ -113,8 +100,31 @@ $searchForm.on("submit", async function (evt: JQuery.SubmitEvent) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id: number): Promise<EpisodeInterface[]> {
+  const response = await axios.get(`${BASE_URL}/${id}/episodes`);
+
+  return response.data.map(episode => {
+    return {
+      id: episode.id,
+      name: episode.name,
+      season: episode.season,
+      number: episode.number
+    };
+
+  });
+
+ }
 
 /** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes: EpisodeInterface[]): void {
+  $episodesArea.empty();
+
+  for (let episode of episodes) {
+    const $episode = $(`<li>${episode.name} (Season ${episode.season}, episode ${episode.number}</li>`);
+
+    $episodesArea.append($episode);
+
+  }
+
+ }
